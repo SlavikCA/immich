@@ -46,7 +46,7 @@ _INSIGHTFACE_MODELS = {
 
 
 def is_openclip(model_name: str) -> bool:
-    return clean_name(model_name) in _OPENCLIP_MODELS
+    return clean_name(model_name).removesuffix("__ann") in _OPENCLIP_MODELS
 
 
 def is_mclip(model_name: str) -> bool:
@@ -55,3 +55,7 @@ def is_mclip(model_name: str) -> bool:
 
 def is_insightface(model_name: str) -> bool:
     return clean_name(model_name) in _INSIGHTFACE_MODELS
+
+
+def is_ann(model_name: str) -> bool:
+    return model_name.endswith("__ann")

@@ -3,8 +3,8 @@ from typing import Any
 from app.schemas import ModelType
 
 from .base import InferenceModel
-from .clip import MCLIPEncoder, OpenCLIPEncoder
-from .constants import is_insightface, is_mclip, is_openclip
+from .clip import MCLIPEncoderOnnx, OpenCLIPEncoderAnn, OpenCLIPEncoderOnnx
+from .constants import is_ann, is_insightface, is_mclip, is_openclip
 from .facial_recognition import FaceRecognizer
 from .image_classification import ImageClassifier
 
@@ -13,9 +13,12 @@ def from_model_type(model_type: ModelType, model_name: str, **model_kwargs: Any)
     match model_type:
         case ModelType.CLIP:
             if is_openclip(model_name):
-                return OpenCLIPEncoder(model_name, **model_kwargs)
+                if is_ann(model_name):
+                    return OpenCLIPEncoderAnn(model_name, **model_kwargs)
+                else:
+                    return OpenCLIPEncoderOnnx(model_name, **model_kwargs)
             elif is_mclip(model_name):
-                return MCLIPEncoder(model_name, **model_kwargs)
+                return MCLIPEncoderOnnx(model_name, **model_kwargs)
         case ModelType.FACIAL_RECOGNITION:
             if is_insightface(model_name):
                 return FaceRecognizer(model_name, **model_kwargs)

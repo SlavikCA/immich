@@ -10,10 +10,10 @@ from transformers import AutoImageProcessor
 
 from ..config import log
 from ..schemas import ModelType
-from .base import InferenceModel
+from .onnx import OnnxModel
 
 
-class ImageClassifier(InferenceModel):
+class ImageClassifier(OnnxModel):
     _model_type = ModelType.IMAGE_CLASSIFICATION
 
     def __init__(

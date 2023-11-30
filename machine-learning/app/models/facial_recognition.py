@@ -10,10 +10,10 @@ from insightface.utils.face_align import norm_crop
 from app.config import clean_name
 from app.schemas import BoundingBox, Face, ModelType, ndarray_f32
 
-from .base import InferenceModel
+from .onnx import OnnxModel
 
 
-class FaceRecognizer(InferenceModel):
+class FaceRecognizer(OnnxModel):
     _model_type = ModelType.FACIAL_RECOGNITION
 
     def __init__(
