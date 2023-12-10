@@ -40,7 +40,7 @@ class ImageClassifier(InferenceModel):
         model_path = self.cache_dir / "model.onnx"
         model_kwargs = {
             "cache_dir": self.cache_dir,
-            "provider": self.providers[-1], # optimum requires a CUDA build of PyTorch for GPU inference, so we use CPU
+            "provider": self.providers[-1],  # optimum requires a CUDA build of PyTorch for GPU inference, so we use CPU
             "provider_options": self.provider_options[-1],
             "session_options": self.sess_options,
         }
