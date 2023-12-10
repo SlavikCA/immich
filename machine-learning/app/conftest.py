@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 from typing import Any, Iterator
 from unittest import mock
 
@@ -60,3 +59,15 @@ def clip_preprocess_cfg() -> dict[str, Any]:
         "resize_mode": "shortest",
         "fill_color": 0,
     }
+
+
+@pytest.fixture(scope="function")
+def providers(request: pytest.FixtureRequest) -> Iterator[dict[str, Any]]:
+    marker = request.node.get_closest_marker("providers")
+    if marker is None:
+        raise ValueError("Missing marker 'providers'")
+
+    providers = marker.args[0]
+    with mock.patch("app.models.base.ort.get_available_providers") as mocked:
+        mocked.return_value = providers
+        yield providers
