@@ -7,13 +7,12 @@ readme = "README.md"
 packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = ">=3.10, <3.12"
 torch = [
     {markers = "platform_machine == 'arm64' or platform_machine == 'aarch64'", version = "=2.1.0", source = "pypi"},
     {markers = "platform_machine == 'amd64' or platform_machine == 'x86_64'", version = "=2.1.0", source = "pytorch-cpu"}
 ]
 transformers = "^4.29.2"
-onnxruntime = "^1.15.0"
 insightface = "^0.7.3"
 opencv-python-headless = "^4.7.0.72"
 pillow = "^9.5.0"
@@ -40,6 +39,24 @@ pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.1.0"
 ruff = "^0.0.272"
 pytest-mock = "^3.11.1"
+
+[tool.poetry.group.cpu]
+optional = true
+
+[tool.poetry.group.cpu.dependencies]
+onnxruntime = "^1.15.0"
+
+[tool.poetry.group.cuda]
+optional = true
+
+[tool.poetry.group.cuda.dependencies]
+onnxruntime-gpu = "^1.15.0"
+
+[tool.poetry.group.openvino]
+optional = true
+
+[tool.poetry.group.openvino.dependencies]
+onnxruntime-openvino = "^1.15.0"
 
 [[tool.poetry.source]]
 name = "pytorch-cpu"
