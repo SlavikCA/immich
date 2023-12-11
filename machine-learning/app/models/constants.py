@@ -45,7 +45,7 @@ _INSIGHTFACE_MODELS = {
 }
 
 SUPPORTED_PROVIDERS = [
-    "TensorrtExecutionProvider",
+    # "TensorrtExecutionProvider",  # TODO: check if this still uses too much RAM
     "CUDAExecutionProvider",
     "OpenVINOExecutionProvider",
     "CPUExecutionProvider",

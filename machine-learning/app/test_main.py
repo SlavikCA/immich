@@ -25,9 +25,8 @@ from .schemas import ModelType
 class TestBase:
     CPU_EP = ["CPUExecutionProvider"]
     CUDA_EP = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-    TRT_EP = ["TensorrtExecutionProvider", "CUDAExecutionProvider", "CPUExecutionProvider"]
+    CUDA_EP_OUT_OF_ORDER = ["CPUExecutionProvider", "CUDAExecutionProvider"]
     OV_EP = ["OpenVINOExecutionProvider", "CPUExecutionProvider"]
-    TRT_EP_OUT_OF_ORDER = ["CUDAExecutionProvider", "TensorrtExecutionProvider", "CPUExecutionProvider"]
 
     @pytest.mark.providers(CPU_EP)
     def test_sets_cpu_provider(self, providers: list[str]) -> None:
@@ -41,23 +40,17 @@ class TestBase:
 
         assert encoder.providers == self.CUDA_EP
 
-    @pytest.mark.providers(TRT_EP)
-    def test_sets_tensorrt_provider_if_available(self, providers: list[str]) -> None:
-        encoder = OpenCLIPEncoder("ViT-B-32__openai")
-
-        assert encoder.providers == self.TRT_EP
-
     @pytest.mark.providers(OV_EP)
     def test_sets_openvino_provider_if_available(self, providers: list[str]) -> None:
         encoder = OpenCLIPEncoder("ViT-B-32__openai")
 
         assert encoder.providers == self.OV_EP
 
-    @pytest.mark.providers(TRT_EP_OUT_OF_ORDER)
+    @pytest.mark.providers(CUDA_EP_OUT_OF_ORDER)
     def test_sets_providers_in_correct_order(self, providers: list[str]) -> None:
         encoder = OpenCLIPEncoder("ViT-B-32__openai")
 
-        assert encoder.providers == self.TRT_EP
+        assert encoder.providers == self.CUDA_EP
 
     def test_sets_provider_kwarg(self) -> None:
         providers = ["TensorrtExecutionProvider", "CUDAExecutionProvider"]
@@ -68,10 +61,7 @@ class TestBase:
     def test_sets_default_provider_options(self) -> None:
         encoder = OpenCLIPEncoder("ViT-B-32__openai", providers=["OpenVINOExecutionProvider", "CPUExecutionProvider"])
 
-        assert encoder.provider_options == [
-            {"arena_extend_strategy": "kSameAsRequested"},
-            {"arena_extend_strategy": "kSameAsRequested"},
-        ]
+        assert encoder.provider_options == [{}, {"arena_extend_strategy": "kSameAsRequested"}]
 
     def test_sets_provider_options_kwarg(self) -> None:
         encoder = OpenCLIPEncoder(

@@ -1,6 +1,4 @@
 ARG DEVICE=cpu
-ARG CUDA_VERSION=11.8
-ARG TRT_VERSION=8.6.1.6
 
 FROM python:3.11-bookworm@sha256:ba7a7ac30c38e119c4304f98ef0e188f90f4f67a958bb6899da9defb99bfb471 as builder-cpu
 
@@ -29,21 +27,11 @@ FROM python:3.11-slim-bookworm@sha256:cfd7ed5c11a88ce533d69a1da2fd932d647f9eb679
 
 FROM python:3.10-slim-bookworm@sha256:a2c9b8dd3da225debeb156176c111752499d152b7505146c1373364766d762a4 as prod-openvino
 
-FROM nvidia/cuda:${CUDA_VERSION}.0-cudnn8-runtime-ubuntu22.04 as prod-cuda
-
-ARG CUDA_VERSION
-ARG TRT_VERSION
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as prod-cuda
 
 COPY --from=builder-cuda /usr/local/bin/python /usr/local/bin/python
 COPY --from=builder-cuda /usr/local/lib/python3.11 /usr/local/lib/python3.11
 COPY --from=builder-cuda /usr/local/lib/libpython3.11.so /usr/local/lib/libpython3.11.so
-
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends \
-      libnvinfer8=${TRT_VERSION}-1+cuda${CUDA_VERSION} \
-      libnvinfer-plugin8=${TRT_VERSION}-1+cuda${CUDA_VERSION} \
-      libnvonnxparsers8=${TRT_VERSION}-1+cuda${CUDA_VERSION} && \
-    rm -rf /var/lib/apt/lists/*
 
 FROM prod-${DEVICE} as prod
 
