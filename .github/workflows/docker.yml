@@ -24,24 +24,22 @@ jobs:
       # Prevent a failure in one image from stopping the other builds
       fail-fast: false
       matrix:
+        image: ["immich-machine-learning", "immich-server"]
+        platform: ["linux/amd64", "linux/arm64"]
+        device: ["cpu"]
         include:
           - image: "immich-machine-learning"
             context: "machine-learning"
             file: "machine-learning/Dockerfile"
-            platform: "linux/amd64,linux/arm64"
-            device: "cpu,cuda"
-
+            device: "cuda"
           - image: "immich-machine-learning"
             context: "machine-learning"
             file: "machine-learning/Dockerfile"
             platform: "linux/amd64"
             device: "openvino"
-
           - image: "immich-server"
             context: "."
             file: "server/Dockerfile"
-            platform: "linux/amd64,linux/arm64"
-            device: "cpu"
             
     steps:
       - name: Checkout
