@@ -28,14 +28,8 @@ jobs:
           - image: "immich-machine-learning"
             context: "machine-learning"
             file: "machine-learning/Dockerfile"
-            platform: ["linux/amd64", "linux/arm64"]
-            device: ["cpu", "cuda"]
-
-          - image: "immich-machine-learning"
-            context: "machine-learning"
-            file: "machine-learning/Dockerfile"
-            platform: ["linux/amd64"]
-            device: ["openvino"]
+            platform: "linux/amd64,linux/arm64"
+            device: "cpu,cuda"
 
           - image: "immich-machine-learning"
             context: "machine-learning"
@@ -46,8 +40,8 @@ jobs:
           - image: "immich-server"
             context: "."
             file: "server/Dockerfile"
-            platform: ["linux/amd64", "linux/arm64"]
-            device: ["cpu"]
+            platform: "linux/amd64,linux/arm64"
+            device: "cpu"
             
     steps:
       - name: Checkout
