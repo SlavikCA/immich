@@ -1,46 +1,55 @@
 ARG DEVICE=cpu
+ARG CUDA_VERSION=11.8
+ARG TRT_VERSION=8.6.1.6
+
 FROM python:3.11-bookworm@sha256:ba7a7ac30c38e119c4304f98ef0e188f90f4f67a958bb6899da9defb99bfb471 as builder-cpu
+
 FROM python:3.10-bookworm@sha256:77335ff30c2b89e66ae3b70589ca20a3f3cf1c815710438d14d61661b37d1a4a as builder-openvino
+
 FROM builder-cpu as builder-cuda
 
 FROM builder-${DEVICE} as builder
-ARG DEVICE=cpu
 
+ARG DEVICE
 ENV PYTHONDONTWRITEBYTECODE=1 \
   PYTHONUNBUFFERED=1 \
   PIP_NO_CACHE_DIR=true
 
 RUN pip install --upgrade pip && pip install poetry
 RUN poetry config installer.max-workers 10 && \
-  poetry config virtualenvs.create false
+    poetry config virtualenvs.create false
 RUN python -m venv /opt/venv
+
 ENV VIRTUAL_ENV="/opt/venv" PATH="/opt/venv/bin:${PATH}"
 
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --sync --no-interaction --no-ansi --no-root --with ${DEVICE} --without dev
 
 FROM python:3.11-slim-bookworm@sha256:cfd7ed5c11a88ce533d69a1da2fd932d647f9eb6791c5b4ddce081aedf7f7876 as prod-cpu
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tini libmimalloc2.0 && \
-    rm -rf /var/lib/apt/lists/*
 
 FROM python:3.10-slim-bookworm@sha256:a2c9b8dd3da225debeb156176c111752499d152b7505146c1373364766d762a4 as prod-openvino
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tini libmimalloc2.0 && \
-    rm -rf /var/lib/apt/lists/*
 
-FROM nvcr.io/nvidia/tensorrt:23.11-py3@sha256:17e7db50fb0605dd3818b3460655d5a840462a2b12a725d36053f5765a6b98ff as prod-cuda
+FROM nvidia/cuda:${CUDA_VERSION}.0-cudnn8-runtime-ubuntu22.04 as prod-cuda
+
+ARG CUDA_VERSION
+ARG TRT_VERSION
+
+COPY --from=builder-cuda /usr/local/bin/python /usr/local/bin/python
+COPY --from=builder-cuda /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=builder-cuda /usr/local/lib/libpython3.11.so /usr/local/lib/libpython3.11.so
+
 RUN apt-get update && \
-    apt-get install -yqq software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -yqq --no-install-recommends tini libmimalloc2.0 python3.11 && \
-    apt-get remove -yqq software-properties-common && \
-    apt-get autoremove -yqq && \
-    apt-get clean && \
+    apt-get -y install --no-install-recommends \
+      libnvinfer8=${TRT_VERSION}-1+cuda${CUDA_VERSION} \
+      libnvinfer-plugin8=${TRT_VERSION}-1+cuda${CUDA_VERSION} \
+      libnvonnxparsers8=${TRT_VERSION}-1+cuda${CUDA_VERSION} && \
     rm -rf /var/lib/apt/lists/*
 
 FROM prod-${DEVICE} as prod
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tini libmimalloc2.0 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 ENV NODE_ENV=production \

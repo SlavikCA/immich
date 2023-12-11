@@ -1,13 +1,13 @@
 version: "3.8"
 
-# Hardware acceleration for transcoding - Optional
-# This is only needed if you want to use hardware acceleration for transcoding.
+# Hardware Acceleration - Optional
+# This is only needed if you want to use hardware acceleration for transcoding or machine learning.
 # Depending on your hardware, you should uncomment the relevant lines below.
 
 services:
   hwaccel:
     # devices:
-    #   - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI
+    #   - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI, or OpenVINO for ML
     # volumes:
     #   - /usr/lib/wsl:/usr/lib/wsl # If using VAAPI in WSL2
     # environment:
