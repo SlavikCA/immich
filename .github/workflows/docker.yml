@@ -28,17 +28,18 @@ jobs:
         platform: ["linux/amd64", "linux/arm64"]
         device: ["cpu"]
         include:
-          - context: "machine-learning"
+          - image: "immich-machine-learning"
+            context: "machine-learning"
             file: "machine-learning/Dockerfile"
-            image: "immich-machine-learning"
-          - context: "machine-learning"
-            file: "machine-learning/Dockerfile"
-            image: "immich-machine-learning"
+          - image: "immich-machine-learning"
+            device: "cuda"
+          - image: "immich-machine-learning"
             platforms: "linux/amd64"
             device: "openvino"
-          - context: "."
+          - image: "immich-server"
+            context: "."
             file: "server/Dockerfile"
-            image: "immich-server"
+            
 
     steps:
       - name: Checkout
